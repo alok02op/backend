@@ -30,7 +30,7 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     // check if already exist : username, email
-    const existedUser = User.findOne({
+    const existedUser = await User.findOne({
         $or: [{ username }, { email }]
     })
 
@@ -40,15 +40,20 @@ const registerUser = asyncHandler(async (req, res) => {
     // check for images, check for avatar
     // from multer middleware
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    // const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar file is required");
     }
+    let coverImageLocalPath;
+    if (req.files && Array.isArray(req.files.coverImage) && (req.files.coverImage.length > 0)) {
+        coverImageLocalPath = req.files.coverImage[0].path;
+    }
+
     // upload them to cloudinary, avatar
     const avatarResponse = await uploadOnCloudinary(avatarLocalPath);
     const coverImageResponse = await uploadOnCloudinary(coverImageLocalPath);
-    if (!avatarURL) throw new ApiError(400, "Avatar file is required");
+    if (!avatarResponse) throw new ApiError(400, "Avatar file is required");
 
     // create user object - create entry in db
     const user = await User.create({
@@ -70,7 +75,7 @@ const registerUser = asyncHandler(async (req, res) => {
     }
     // return response
     return res.status(201).json(
-        ApiResponse(200, createdUser, "User registered successfully.")
+        new ApiResponse(200, createdUser, "User registered successfully.")
     )
 })
 export {registerUser};
