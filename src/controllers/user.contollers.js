@@ -282,7 +282,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     );
 });
 
-const updatedUserAvatar = asyncHandler(async (req, res) => {
+const updateUserAvatar = asyncHandler(async (req, res) => {
     const avatarLocalPath = req.file?.path;
 
     if (!avatarLocalPath) {
@@ -474,7 +474,7 @@ export {
     changeCurrentPassword, 
     getCurrentUser,
     updateAccountDetails,
-    updatedUserAvatar,
+    updateUserAvatar,
     updateUserCoverImage,
     getUserChannelProfile,
     getWatchHistory
