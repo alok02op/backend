@@ -239,12 +239,65 @@ const changeCurrentPassword = asyncHandler(async (req,res) => {
 })
 
 const getCurrentUser = asyncHandler(async (req, res) => {
+    const user = await User.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(req.user?._id)
+            }
+        },
+        {
+            $lookup: {
+                from: "videos",
+                localField: "wacthHistory",
+                foreignField: "_id",
+                as: "watchHistory",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "owner",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        username: 1,
+                                        fullName: 1,
+                                        avatar: 1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $adddFields: {
+                            owner: {
+                                $first: "$owner"
+                            }
+                        }
+                    }
+                ]
+
+            }
+        },
+        {
+            $project: {
+                username: 1,
+                email: 1,
+                fullName: 1,
+                avatar: 1,
+                coverImage: 1,
+                watchHistory: 1
+            }
+        }
+    ])
+
     return res
     .status(200)
     .json(
         new ApiResponse(
             200,
-            req.user,
+            user,
             "Current user fetched successfully"
         )
     );
@@ -300,7 +353,7 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
         { new: true }
     ).select("-password -refreshToken");
     
-    await deleteFromCloudinary(req.user?.avatar?.public_id);
+    await deleteFromCloudinary(req.user?.avatar);
     
     return res
         .status(200)
@@ -322,7 +375,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 
     if (!coverImage) throw new ApiError(500, "failed to upload on cloudinary");
 
-    await deleteFromCloudinary(req.user?.coverImage?.public_id);
+    await deleteFromCloudinary(req.user?.coverImage);
 
     const updatedUser = await findByIdAndUpdate(
         req.user?._id,

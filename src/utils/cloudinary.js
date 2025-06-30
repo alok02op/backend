@@ -24,18 +24,26 @@ const uploadOnCloudinary = async (localFilePath) => {
     }
 }
 
-const deleteFromCloudinary = async (publicId) => {
+const deleteFromCloudinary = async (fileUrl) => {
     try {
-        if (!publicId) return null
-        // delete the file from cloudinary
+        if (!fileUrl) return null;
+        // Example: https://res.cloudinary.com/demo/image/upload/v1234567890/folder/filename.jpg
+        const parts = fileUrl.split("/upload/");
+        if (parts.length < 2) return null;
+
+        const publicIdWithExtension = parts[1];
+        const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, ""); // remove file extension
+        
         const response = await cloudinary.uploader.destroy(publicId, {
-            resource_type : "auto"
-        })
+            resource_type: "auto"
+        });
+
         return response;
     } catch (error) {
-        console.log("Error in deleting from cloudinary ", error);
-        return null
+        console.log("Error in deleting from Cloudinary:", error);
+        return null;
     }
-}
+};
+
 
 export {uploadOnCloudinary, deleteFromCloudinary}
