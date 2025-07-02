@@ -6,7 +6,7 @@ const likeSchema = new Schema({
         ref: "Comment"
     },
 
-    videos: {
+    video: {
         type: Schema.Types.ObjectId,
         ref: "Video"
     },
@@ -22,5 +22,10 @@ const likeSchema = new Schema({
     }
 
 }, { timestamps : true });
+
+// Ensure uniqueness per user per resource
+likeSchema.index({ comment: 1, likedBy: 1 }, { unique: true, sparse: true });
+likeSchema.index({ video: 1, likedBy: 1 }, { unique: true, sparse: true });
+likeSchema.index({ tweet: 1, likedBy: 1 }, { unique: true, sparse: true });
 
 export const Like = model("Like", likeSchema);

@@ -1,5 +1,7 @@
 import { Router } from 'express';
-import {
+import { checkOwnership } from "../middlewares/ownership.middlewares.js"
+import { Tweet } from "../models/tweet.models.js"
+import { 
     createTweet,
     deleteTweet,
     getUserTweets,
@@ -12,6 +14,10 @@ router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
 
 router.route("/").post(createTweet);
 router.route("/user/:userId").get(getUserTweets);
-router.route("/:tweetId").patch(updateTweet).delete(deleteTweet);
+
+router
+.route("/:tweetId")
+.patch(checkOwnership(Tweet, "tweetId"), updateTweet)
+.delete(checkOwnership(Tweet, "tweetId"), deleteTweet);
 
 export default router
