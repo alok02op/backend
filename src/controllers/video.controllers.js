@@ -36,16 +36,22 @@ const getAllVideos = asyncHandler(async (req, res) => {
         filter.owner = userId
     }
 
-    const sortOptions = {}
-    if (sortBy) {
-        sortOptions[sortBy] = sortType === 'asc' ? 1 : -1
-    }
+    const sortOptions = sortBy ? { [sortBy]: sortType === 'asc' ? 1 : -1 } : { createdAt: -1 };
 
-    const result = await Video.paginate(filter, {
-        page: pageNum,
-        limit: limitNum,
-        sort: sortOptions
-    })
+    const result = await Video.aggregatePaginate(
+        Video.aggregate([
+            {
+                $match: filter
+            },
+            {
+                $sort: sortOptions
+            }
+        ]),
+        {
+            page: pageNum,
+            limit: limitNum
+        }
+    )
 
     if (!result.docs || result.docs.length === 0) {
         throw new ApiError(404, "No videos found matching the criteria")
@@ -61,7 +67,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
                 page: result.page,
                 lastPage: result.totalPages
             },
-            "Videos fetched successfully"
+            result.docs.length > 0 ? "Videos fetched successfully" : "No videos found"
         )
     )
 })

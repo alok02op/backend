@@ -39,10 +39,12 @@ const getUserTweets = asyncHandler(async (req, res) => {
     let pageNum = Math.max(1, parseInt(page) || 1);
     let limitNum = Math.min(50, Math.max(1, parseInt(limit) || 1)); 
 
-    const result = await Tweet.paginate(
-        {
-            owner: user_id
-        },
+    const result = await Tweet.aggregatePaginate(
+        Tweet.aggregate([
+            {
+                $match: {owner: user_id}
+            }
+        ]),
         {
             page: pageNum,
             limit: limitNum,
