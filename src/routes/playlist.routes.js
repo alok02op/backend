@@ -8,7 +8,9 @@ import {
     removeVideoFromPlaylist,
     updatePlaylist,
 } from "../controllers/playlist.controller.js"
+import {Playlist} from "../models/playlist.models.js"
 import {verifyJWT} from "../middlewares/auth.middleware.js"
+import { checkOwnership } from "../middlewares/ownership.middlewares.js"
 
 const router = Router();
 
@@ -19,11 +21,16 @@ router.route("/").post(createPlaylist)
 router
     .route("/:playlistId")
     .get(getPlaylistById)
-    .patch(updatePlaylist)
-    .delete(deletePlaylist);
+    .patch(checkOwnership(Playlist, "playlistId"), updatePlaylist)
+    .delete(checkOwnership(Playlist, "playlistId"), deletePlaylist);
 
-router.route("/add/:videoId/:playlistId").patch(addVideoToPlaylist);
-router.route("/remove/:videoId/:playlistId").patch(removeVideoFromPlaylist);
+router
+    .route("/add/:videoId/:playlistId")
+    .patch(checkOwnership(Playlist, "playlistId"), addVideoToPlaylist);
+
+router
+    .route("/remove/:videoId/:playlistId")
+    .patch(checkOwnership(Playlist, "playlistId"), removeVideoFromPlaylist);
 
 router.route("/user/:userId").get(getUserPlaylists);
 

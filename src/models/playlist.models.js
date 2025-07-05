@@ -1,6 +1,6 @@
 import mongoose, { model, Schema} from "mongoose";
 
-const playListSchema = new Schema({
+const playlistSchema = new Schema({
     name: {
         type: String,
         required: true
@@ -24,4 +24,6 @@ const playListSchema = new Schema({
 
 }, { timestamps : true });
 
-export const PlayList = model("PlayList", playListSchema);
+playlistSchema.index({ name: 1, owner: 1 }, { unique: true });
+
+export const Playlist = model("Playlist", playlistSchema);
