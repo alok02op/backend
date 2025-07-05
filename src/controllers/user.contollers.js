@@ -270,7 +270,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
                         }
                     },
                     {
-                        $adddFields: {
+                        $addFields: {
                             owner: {
                                 $first: "$owner"
                             }
