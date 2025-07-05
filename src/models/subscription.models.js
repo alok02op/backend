@@ -1,4 +1,4 @@
-import { Schema, Model } from "mongoose";
+import { Schema, model } from "mongoose";
 
 const subscriptionSchema = new Schema({
     subscriber : {
@@ -13,4 +13,4 @@ const subscriptionSchema = new Schema({
 
 }, {timestamps : true})
 
-export const Subscription = Model("Subscription", subscriptionSchema);
+export const Subscription = model("Subscription", subscriptionSchema);

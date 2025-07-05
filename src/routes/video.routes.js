@@ -6,10 +6,10 @@ import {
     updateVideo,
     deleteVideo,
     togglePublishStatus,
-} from "../controllers/video.controller.js"
-import {verifyJWT} from "../middlewares/auth.middleware.js"
-import {upload} from "../middlewares/multer.middleware.js"
-import { ownershipCheck } from "../middlewares/ownership.middlewares.js"
+} from "../controllers/video.controllers.js"
+import {verifyJWT} from "../middlewares/auth.middlewares.js"
+import {upload} from "../middlewares/multer.middlewares.js"
+import { checkOwnership } from "../middlewares/ownership.middlewares.js"
 import { Video } from "../models/video.models.js"
  
 const router = Router();
@@ -35,9 +35,9 @@ router
 router
     .route("/:videoId")
     .get(getVideoById)
-    .delete(ownershipCheck(Video, "videoId"), deleteVideo)
-    .patch(ownershipCheck(Video, "videoId") , upload.single("thumbnail"), updateVideo);
+    .delete(checkOwnership(Video, "videoId"), deleteVideo)
+    .patch(checkOwnership(Video, "videoId") , upload.single("thumbnail"), updateVideo);
 
-router.route("/toggle/publish/:videoId").patch(ownershipCheck(Video, "videoId"), togglePublishStatus);
+router.route("/toggle/publish/:videoId").patch(checkOwnership(Video, "videoId"), togglePublishStatus);
 
 export default router
