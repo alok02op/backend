@@ -35,8 +35,11 @@ const deleteFromCloudinary = async (fileUrl) => {
         const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, ""); // remove file extension
         
         const response = await cloudinary.uploader.destroy(publicId, {
-            resource_type: "auto"
+            resource_type: "image",
+            invalidate: true
         });
+
+        console.log("Deleting public_id:", publicId);
 
         return response;
     } catch (error) {

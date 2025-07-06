@@ -377,7 +377,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 
     await deleteFromCloudinary(req.user?.coverImage);
 
-    const updatedUser = await findByIdAndUpdate(
+    const updatedUser = await User.findByIdAndUpdate(
         req.user?._id,
         { $set: { coverImage : coverImage.url } },
         { new: true, runValidators: true }
@@ -398,11 +398,11 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
     const {username} = req.params
 
     if (!username?.trim()) throw new ApiError(400, "Username is missing");
-    
+    console.log(req.params);
     const channel = await User.aggregate([
         {
             $match: {
-                username: username?.toLowerCase()
+                username: username.toLowerCase()
             }
         },
         {
@@ -427,7 +427,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
                     $size: "$subscribers"
                 },
                 channelsSubscribedToCount: {
-                    $size: "subscribedTo"
+                    $size: "$subscribedTo"
                 },
                 isSubscribed: {
                     $cond: {
